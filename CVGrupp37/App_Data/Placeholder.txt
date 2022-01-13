@@ -1,0 +1,4 @@
+﻿/*
+* Fil som finns för att mappen inte ska vara tom.
+* Om den är tom, så skapas den inte med Git verkar det som.
+*/

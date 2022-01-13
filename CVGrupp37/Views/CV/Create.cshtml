@@ -1,0 +1,159 @@
+﻿@using Data.Models
+@using Shared;
+@using Services;
+@model Shared.CVCreateModel
+
+
+@{
+    ViewBag.Title = "Create";
+
+}
+
+<h2>Create</h2>
+
+@using (Html.BeginForm("Create", "CV", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>CV</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Namn, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Namn, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Namn, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <br />
+            <h4>Add your skills</h4>
+            <br />
+
+            @if (Model.Skills != null && Model.Skills.Any())
+            {
+                foreach (var skill in Model.Skills)
+                {
+                    <br />
+
+                    <label>
+                        <input name="@(nameof(CVCreateModel.ChosenSkills))" @((Model.ChosenSkills?.Contains(skill.Id) ?? false) ? "checked='checked'" : "") type="checkbox" value="@skill.Id" />
+                        @skill.Name
+                    </label> }
+            }
+            else
+            {
+                <label>
+                    <input type="checkbox" disabled="disabled" value="" />
+                    Inga Skills att välja på
+                </label>}
+        </div>
+
+        @* Här nedan laddas Educations in *@
+        <div class="form-group">
+            <br />
+            <h4>Add your Educations</h4>
+            <br />
+            @if (Model.Educations != null && Model.Educations.Any())
+            {
+                foreach (var education in Model.Educations)
+                {<br />
+
+                    <label>
+                        <input name="@(nameof(CVCreateModel.ChosenEducations))" @((Model.ChosenEducations?.Contains(education.Id) ?? false) ? "checked='checked'" : "") type="checkbox" value="@education.Id" />
+
+                        @education.Name
+                        <br />
+                        <label>
+                            @education.Education
+                        </label>
+                        <br />
+                        <label>
+                            @education.startDate.ToString("yyyy MMMM")
+                            @education.endDate.Date.ToString("yyyy MMMM")
+                        </label>
+
+                    </label>
+                    <br />
+                }
+            }
+            else
+            {
+                <label>
+                    <input type="checkbox" disabled="disabled" value="" />
+                    Inga Educations att välja på
+                </label>}
+        </div>
+
+
+        @* Här nedan laddas Experiences in *@
+
+        <div class="form-group">
+            <br />
+            <h4>Add your Experiences</h4>
+            <br />
+            @if (Model.Experiences != null && Model.Experiences.Any())
+            {
+                foreach (var experiences in Model.Experiences)
+                {<br />
+                    <label>
+                        <input name="@(nameof(CVCreateModel.ChosenExperiences))" @((Model.ChosenExperiences?.Contains(experiences.Id) ?? false) ? "checked='checked'" : "") type="checkbox" value="@experiences.Id" />
+
+                        @experiences.Name
+                        <br />
+                        @*<label>
+                                @experiences.
+                            </label>
+                                <br />
+                            <label>
+                                @education.startDate.ToString("yyyy MMMM")
+                                @education.endDate.Date.ToString("yyyy MMMM")
+                            </label>*@
+
+                    </label>
+                    <br />
+                }
+            }
+            else
+            {
+                <label>
+                    <input type="checkbox" disabled="disabled" value="" />
+                    Inga Educations att välja på
+                </label>}
+        </div>
+
+
+
+
+
+
+        <br />
+        <h4>Add your a profile picture</h4>
+        <br />
+        <input type="file" name="Image" value="välj din bild" />
+        <br />
+        <div class="form-group">
+            <div class="col-md-offset-4 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+        <br />
+        <div>
+            @Html.ActionLink("Add more skills to list of skills", "Index", "Skills/Create")
+        </div>
+        <div>
+            @Html.ActionLink("Add more skills to list of Experiences", "Index", "Experiences/Create")
+        </div>
+        <div>
+            @Html.ActionLink("Add more skills to list of Educations", "Index", "Educations/Create")
+        </div>
+    </div>
+}
+<br />
+<br />
+<div>
+    @Html.ActionLink("Back to CV Management", "Index")
+</div>

@@ -1,0 +1,119 @@
+﻿@model IEnumerable<Data.Models.Project>
+
+@{ ViewBag.Title = "Index"; }
+
+<h2>All projects</h2>
+@if (User.Identity.IsAuthenticated)
+{
+<p>
+    @Html.ActionLink("Create New Project", "Create")
+</p>}
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.StartDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.EndDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.POName)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.Title)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Description)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.StartDate)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.EndDate)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.POName)
+    </td>
+    <td>
+        @using (Html.BeginForm("ProjectDetails", "Project", new { Id = item.Id }, FormMethod.Get))
+        {
+    <button>See Details</button>}
+    </td>
+    @if (User.Identity.IsAuthenticated)
+    {
+<td>
+    <button type="button" class="joinProject" data-id="@item.Id" data-title="@item.Title"> Join this project </button>
+</td>
+}
+    @if (User.Identity.IsAuthenticated && User.Identity.Name.Equals(item.POName))
+    {
+
+<td>
+    <button type="button" class="deleteproject" data-id="@item.Id" data-title="@item.Title"> Remove </button>
+</td>
+                    <td>
+                        @using (Html.BeginForm("Edit", "Project", new { Id = item.Id }, FormMethod.Get))
+                        {
+                         <button>Edit Project</button>}
+                    </td>
+}
+</tr>}
+
+</table>
+@section scripts {
+    <script>
+        $('.deleteproject').click(function () {
+            var $this = $(this);
+            var projectTitle = $this.data('title');
+            if (!window.confirm('Vill du ta bort projektet "' + projectTitle + '" ?')) return;
+            var id = $this.data('id');
+            $.ajax({
+                url: 'api/project/delete',
+                method: 'POST',
+                data: { projectid: id },
+                success: function () {
+                    window.location.reload();
+                },
+                error: function () {
+                    window.alert('Kunde inte ta bort projektet');
+                }
+            });
+        })
+    </script>
+    <script>
+        $('.joinProject').click(function () {
+            var $this = $(this);
+            var projectTitle = $this.data('title');
+            if (!window.confirm('Vill du gå med i projektet "' + projectTitle + '" ?')) return;
+            var id = $this.data('id');
+            $.ajax({
+                url: 'api/project/join',
+                method: 'POST',
+                data: { projectid: id },
+                success: function () {
+                    window.location.reload();
+                    window.alert('Du är nu med i projektet');
+                },
+                error: function () {
+                    window.alert('Kunde inte gå med i projektet');
+                }
+            });
+        })
+    </script>
+   
+}
+
+
+

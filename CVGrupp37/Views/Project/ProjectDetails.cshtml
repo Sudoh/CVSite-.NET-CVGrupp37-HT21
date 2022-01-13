@@ -1,0 +1,93 @@
+﻿@model Data.Models.Project
+
+@{
+    ViewBag.Title = "ProjectDetails";
+}
+
+<h2>ProjectDetails</h2>
+
+<div>
+    <h4>Project</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.DateAdded)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.DateAdded)
+            </dd>
+
+
+            <dt>
+                @Html.DisplayNameFor(model => model.POName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.POName)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.Participants)
+        </dt>
+        @if (User.Identity.IsAuthenticated)
+        {
+            foreach (var item in Model.Participants)
+            {
+                <dd>
+                    @item.UserName
+                </dd>
+            }
+        }
+        else
+        {
+            foreach (var item in Model.Participants)
+            {
+
+                if (item.Publik == true)
+                {
+                    <dd>
+                        @item.UserName
+                    </dd>
+                }
+            }
+
+        }
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

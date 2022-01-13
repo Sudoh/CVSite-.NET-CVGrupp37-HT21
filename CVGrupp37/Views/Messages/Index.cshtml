@@ -1,0 +1,118 @@
+﻿@model IEnumerable<Data.Models.Messages>
+
+@{
+    ViewBag.Title = "Dina meddelanden!";
+}
+
+<h2>Dina meddelanden:</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            Från:
+        </th>
+        <th>
+            Meddelande:
+        </th>
+        <th>
+            Skickat den:
+        </th>
+
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+        @if (item.IsRead)
+                {
+                    <tr />
+                } else
+                {
+                     <tr style="background-color:aliceblue" />
+                }
+        
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromUser)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MessageText)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateSent)
+                </td>
+                <td>
+
+
+                    @if (item.IsRead == true)
+                    {
+                        <button class="read btn-success" data-id="@item.Id" data-title="@item.Id" title="Läst meddelande">💌</button>
+
+                    }
+                    else
+                    {
+                        <button class="read btn-primary" data-id="@item.Id" data-title="@item.Id" title="Oläst meddelande">📩</button>
+
+                    }
+
+
+
+                    <button class="deletemessage btn-danger" data-id="@item.Id" data-title="@item.Id" title="Ta bort meddelande">❌</button>
+                </td>
+            </tr>
+            }
+        </table>
+
+
+@section scripts {
+
+
+    <script>
+
+        $('.deletemessage').on('click', function () {
+            var messageId = $(this).data('id');
+            console.log(messageId);
+            $.confirm({
+                title: 'Bekräfta!',
+                content: 'Vill du verkligen ta bort meddelandet?',
+                buttons: {
+                    Ja: function () {
+
+                       
+                        $.get('/api/message/delete/' + messageId, function () {
+                          
+                            console.log('Row_' + messageId)
+                            $('#Row_' + messageId).fadeOut();
+                            setTimeout(function () { location.reload() }, 500);
+
+                        })
+
+
+                        $('#Row_' + messageId).fadeOut();
+
+
+
+
+                    },
+                    Nej: function () {
+                   
+                    },
+
+                }
+            })
+        });
+
+    </script>
+
+    <script>
+        $('.read').click(function () {
+            var messageId = $(this).data('id');
+            console.log('fångade read');
+            $.get('/api/message/setmessagestatus/' + messageId, function () {
+                window.location.reload();
+            })
+        })
+    </script>
+
+
+}

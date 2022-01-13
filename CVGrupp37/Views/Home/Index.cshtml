@@ -1,0 +1,303 @@
+﻿@using Services
+@model Data.Models.StartViewModel
+
+@{ ViewBag.Title = "Home Page"; }
+
+<div class="randomCV">
+
+    <h2>CV selection</h2>
+    <hr />
+
+    @if (Model.startCVs.Count == 0)
+    {
+        <h3 style="text-align: left">There are no CVs to show yet</h3>
+    }
+
+    <div class="row">
+
+        @{ var amountCVs = Model.startCVs.Count;
+            int limitCVs;
+
+            if (amountCVs > 3)
+            {
+                limitCVs = 3;
+            }
+            else
+            {
+                limitCVs = amountCVs;
+            } }
+
+        @for (int i = 0; i < limitCVs; i++)
+        {
+        <div class="col-md-4">
+
+            <h3>@Model.startCVs[i].Namn</h3>
+            <div id="images"><img src="@ImageService.GetImagePathRelative(Model.startCVs[i].ImagePath)" height="200" /></div>
+            <div id="skills"></div>
+
+            <br />
+
+            <button class="btn btn-primary">@Html.ActionLink("Visit CV", "Details", "CV", new { Id = @Model.startCVs[i].Id }, new { Style="color:#FFF"})</button>
+
+            @*<button class="btn btn-primary" style="margin-left: 10px">@Html.ActionLink("Message", "Create", "Messages", new { Id = @Model.startCVs[i].Id }, null)</button>*@
+
+            @if (string.IsNullOrEmpty(User.Identity.Name))
+            {
+        <button class="messageTo btn btn-primary" data-id="@Model.startCVs[i].Id" data-user="">Meddelande 📮</button>
+            }
+            else
+            {
+                <button class="messageTo btn btn-primary" data-id="@Model.startCVs[i].Id" data-user="@User.Identity.Name">Meddelande 📮</button>
+
+            }
+
+
+        </div>
+        }
+
+
+    </div>
+
+
+</div>
+
+<hr />
+<div class="col-md-4">
+
+    <h2>Last added projects</h2>
+    <hr />
+
+    @if (Model.startProjects.Count == 0)
+    {
+        <h3 style="text-align: left">There are no projects to show</h3>
+    }
+
+    @{ var amountProjects = Model.startProjects.Count;
+        int limitProjects;
+
+        if (amountProjects > 3)
+        {
+            limitProjects = 3;
+        }
+        else
+        {
+            limitProjects = amountProjects;
+        } }
+
+    @for (int i = 0; i < limitProjects; i++)
+    {
+        <div class="col-md-7">
+            <table class="table">
+                <tr>
+
+                    <td>
+                        @Model.startProjects[i].Title
+                    </td>
+                    <td>
+                        @Model.startProjects[i].Description
+                    </td>
+                    <td>
+                        @Model.startProjects[i].StartDate.ToString("yyyy/MM/dd")
+                    </td>
+                    <td>
+                        @Model.startProjects[i].EndDate.ToString("yyyy/MM/dd")
+                    </td>
+                    <td>
+                        @using (Html.BeginForm("ProjectDetails", "Project", new { Id = @Model.startProjects[i].Id }, FormMethod.Get))
+                        {
+                            <button>See Details</button>
+                        }
+                    </td>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <td>
+                            <button type="button" class="joinProject" data-id="@Model.startProjects[i].Id" data-title="@Model.startProjects[i].Title"> Join project </button>
+                        </td>
+                    }
+                </tr>
+
+
+            </table>
+
+
+
+        </div>
+
+    }
+
+
+</div>
+
+@section scripts {
+    <script>
+        $('.joinProject').click(function () {
+            var $this = $(this);
+            var projectTitle = $this.data('title');
+            if (!window.confirm('Vill du gå med i projektet "' + projectTitle + '" ?')) return;
+            var id = $this.data('id');
+            $.ajax({
+                url: 'api/project/join',
+                method: 'POST',
+                data: { projectid: id },
+                success: function () {
+                    window.location.reload();
+                    window.alert('Du är nu med i projektet');
+                },
+                error: function () {
+                    window.alert('Kunde inte gå med i projektet');
+                }
+            });
+        })
+    </script>
+
+    <script>
+
+        $('.messageTo').on('click', function () {
+            var messageToId = $(this).data('id');
+            console.log(messageToId);
+
+
+            var fromUser = $(this).data('user');
+            if (!fromUser) {
+
+                $.confirm({
+                    title: 'Meddelande:',
+                    content: '' +
+                       
+                        '<div class="form-group">' +
+                        '<label>Ditt Namn:</label>' +
+                        '<input type="text" placeholder="Your name" class="From form-control" id="From" required />' +
+                        '<label>Ditt Meddelande:</label>' +
+                        '<input type="text" placeholder="Meddelande" class="MessageBody form-control" required id="MessageBody"/>' +
+                        '</div>',
+  
+                    buttons: {
+                        formSubmit: {
+                            text: 'Submit',
+                            btnClass: 'btn-blue',
+                            action: function (e) {
+                            
+                                var From = $('#From').val();
+                                var MessageText = $('#MessageBody').val();
+
+                                console.log(From + ' ' + MessageText);
+
+                                if (!MessageText || !From) {
+                                    $.alert('Någon av fälten är tomma');
+                                    return false;
+                                }
+
+
+                                var meddelande = {
+                                    'From': From,
+                                    'To': messageToId,
+                                    'Message': MessageText
+                                };
+
+                                console.log('Konverterar till JSON')
+                                var model = JSON.stringify(meddelande);
+                                console.log(model)
+
+                                $.ajax({
+                                    url: '/api/message/send',
+                                    type: 'POST',
+                                    data: model,
+                                    dataType: 'json',
+                                    contentType: 'application/json',
+                                    success: function (data) {
+                                        callback(data)
+                                          
+                                    }
+                                });
+                              
+
+                            }
+                        },
+                        cancel: function () {
+                            //close
+                        },
+                        
+                    }
+                    
+                });
+
+
+
+            } //if
+            else {
+
+
+            $.confirm({
+                title: 'Meddelande:',
+                content: '' +
+
+                    '<div class="form-group">' +
+                    '<label>Ditt Meddelande:</label>' +
+                    '<input type="text" placeholder="Meddelande" class="MessageBody form-control" required id="MessageBody"/>' +
+                    '</div>',
+                buttons: {
+                    formSubmit: {
+                        text: 'Skicka',
+                        btnClass: 'btn-blue',
+                        action: function () {
+                         
+                            var MessageText = $('#MessageBody').val();
+
+                            console.log(fromUser + ' ' + MessageText);
+
+                            if (!MessageText) {
+                                $.alert('Trevligare med ett meddelande!');
+                                return false;
+                            }
+
+
+                            var meddelande = {
+                                'From': fromUser,
+                                'To': messageToId,
+                                'Message': MessageText
+                            };
+
+                            console.log('Konverterar till JSON')
+                            var model = JSON.stringify(meddelande);
+                            console.log(model)
+
+                            $.ajax({
+                                url: '/api/message/send',
+                                type: 'POST',
+                                data: model,
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                success: function (data) {
+                                    callback(data)
+
+                                }
+                            });
+
+
+                        }
+                    },
+                    cancel: function () {
+                        //close
+                    },
+                },
+                onContentReady: function () {
+                    // bind to events
+                    var jc = this;
+                    this.$content.find('form').on('submit', function (e) {
+                        // if the user submits the form by pressing enter in the field.
+                        e.preventDefault();
+                        jc.$$formSubmit.trigger('click'); // reference the button and click it
+                    });
+                }
+            });
+            }
+
+
+        });
+
+
+    </script>
+
+
+}
+

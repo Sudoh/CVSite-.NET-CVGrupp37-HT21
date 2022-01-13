@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Data.ApplicationUser>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Search CVs on Name</h2>
+
+
+<br /><br />
+@using (Html.BeginForm("Index", "Search", FormMethod.Get)) 
+{
+      @Html.TextBox("Searching")<input type="submit" value="Search" />
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Namn</th>
+            <th>UserName</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count() == 0)
+        {
+            <tr>
+                <td colspan="3" style="color:red">
+                    Inga matchningar på din valda sökning
+                </td>
+            </tr>
+        }
+        else if (User.Identity.IsAuthenticated)
+        {
+
+            foreach (var item in Model)
+            {
+
+                <tr>
+                    <td>@item.Namn</td>
+                    <td>@item.UserName</td>
+                    <td>
+                        @if (item.CVid != null)
+                        {
+                            using (Html.BeginForm("Details", "CV", new { Id = item.CVid }, FormMethod.Get))
+                            {
+                                <button>Visit CV</button>}
+                        }
+
+                        else
+                        {
+                            <button>No CV exists</button>
+                        }
+                    </td>
+                </tr>
+            }
+
+        }
+        else 
+        { foreach (var item in Model)
+            {
+                if(item.Publik == true) { 
+                <tr>
+                    <td>@item.Namn</td>
+                    <td>@item.UserName</td>
+                    <td>
+                        @if (item.CVid != null)
+                        {
+                            using (Html.BeginForm("Details", "CV", new { Id = item.CVid }, FormMethod.Get))
+                            {
+                                <button>Visit CV</button>}
+                        }
+
+                        else
+                        {
+                            <button>No CV exists</button>
+                        }
+                        
+                    </td>
+                </tr>
+
+                }
+            }
+        }
+
+
+    </tbody>
+</table>

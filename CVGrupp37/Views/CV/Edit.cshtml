@@ -1,0 +1,117 @@
+﻿@using Services;
+@using Data
+@using Shared;
+@model Shared.CVCreateModel
+
+@{ ViewBag.Title = "Edit";
+    var hasErrorSaving = ViewBag.Error as bool?;
+    var savedCorrectly = ViewBag.Saved as bool?; }
+
+<h2>Edit CV</h2>
+
+
+@if (hasErrorSaving.GetValueOrDefault())
+{
+    <p>Det blev ett fel när vi skulle spara, försök igen.</p>}
+
+@if (savedCorrectly.GetValueOrDefault())
+{
+    <p>CV är sparat!</p>}
+
+
+@using (Html.BeginForm("Edit", "CV", FormMethod.Post, new { enctype = "multipart/form-data", @class = "" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.Namn)
+            @Html.TextBoxFor(x => x.Namn, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Namn, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(x => x.Image)
+            @Html.TextBox(nameof(CVCreateModel.Image), "", new { type = "file" })
+        </div>
+
+        @* Skills edit below *@
+        <div class="form-group">
+            @Html.LabelFor(x => x.ChosenSkills)
+
+            @if (Model.Skills != null && Model.Skills.Any())
+            {
+                foreach (var skill in Model.Skills)
+                {
+                    <label>
+                        <input name="@(nameof(CVCreateModel.ChosenSkills))" @((Model.ChosenSkills?.Contains(skill.Id) ?? false) ? "checked='checked'" : "") type="checkbox" value="@skill.Id" />
+                        @skill.Name
+                    </label> }
+            }
+            else
+            {
+                <label>
+                    <input type="checkbox" disabled="disabled" value="" />
+                    Inga skills att välja på
+                </label>}
+        </div>
+
+        @* Education edit below *@
+        <div class="form-group">
+            @Html.LabelFor(x => x.ChosenEducations)
+
+            @if (Model.Educations != null && Model.Educations.Any())
+            {
+                foreach (var education in Model.Educations)
+                {
+                    <label>
+                        <input name="@(nameof(CVCreateModel.ChosenEducations))" @((Model.ChosenEducations?.Contains(education.Id) ?? false) ? "checked='checked'" : "") type="checkbox" value="@education.Id" />
+                        @education.Name
+                        @education.Education
+                    </label> }
+            }
+            else
+            {
+        <label>
+            <input type="checkbox" disabled="disabled" value="" />
+            No Educations to choose
+        </label>}
+        </div>
+
+        @* Experiences edit below *@
+        <div class="form-group">
+            @Html.LabelFor(x => x.ChosenExperiences)
+
+            @if (Model.Experiences != null && Model.Experiences.Any())
+            {
+                foreach (var experience in Model.Experiences)
+                {
+                    <label>
+                        <input name="@(nameof(CVCreateModel.ChosenExperiences))" @((Model.ChosenExperiences?.Contains(experience.Id) ?? false) ? "checked='checked'" : "") type="checkbox" value="@experience.Id" />
+                        @experience.Name
+
+                    </label> }
+            }
+            else
+            {
+                <label>
+                    <input type="checkbox" disabled="disabled" value="" />
+                    No experiences to choose
+                </label>}
+        </div>
+
+
+
+        <input class="btn btn-primary" type="submit" value="Spara CV!" />
+    </div>}
+
+
+<div>
+    @Html.ActionLink("Add more skills to list of skills", "Index", "Skills/Create")
+</div>
+<div>
+    @Html.ActionLink("Add more skills to list of Experiences", "Index", "Experiences/Create")
+</div>
+<div>
+    @Html.ActionLink("Add more skills to list of Educations", "Index", "Educations/Create")
+</div>

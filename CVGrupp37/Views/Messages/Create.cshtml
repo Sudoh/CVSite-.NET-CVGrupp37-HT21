@@ -1,0 +1,121 @@
+﻿@model Shared.CreateMessagesViewModel
+
+
+@{
+    ViewBag.Title = "Meddelande";
+}
+
+<h2 id="rubbe">Meddelanden</h2>
+
+<div id="send-message-form">
+
+    @Html.AntiForgeryToken()
+
+    <h4 >Skicka ett meddelande:</h4>
+    <hr />
+
+    @if (string.IsNullOrEmpty(Model.From))
+    {
+        <div class="form-group">
+            @Html.LabelFor(model => model.From, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.From, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.From, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    }
+    else
+
+    {
+        <div class="form-group hidden">
+            @Html.LabelFor(model => model.To, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.From, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.From, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+    }
+
+
+    <div class="form-group, hidden">
+        @Html.LabelFor(model => model.To, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.To, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.To, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Message, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Message, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Message, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="createmessage">Skicka meddelande</button>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+
+
+        <script>
+
+            $('.createmessage').click(function () {
+
+                console.log('knapen är min')
+
+                var from = $('#From').val();
+                var to = $('#To').val();
+                var message = $('#Message').val();
+
+                console.log('hämtade form values')
+
+                console.log('Skapar objekt')
+                var meddelande = {
+                    'From': from,
+                    'To': to,
+                    'Message': message
+                };
+
+                console.log(meddelande)
+
+
+                console.log('Konverterar till JSON')
+                model = JSON.stringify(meddelande);
+           
+                console.log(model)
+
+                $.ajax({
+                    url: '/api/message/send',
+                    type: 'POST',
+                    data: model,
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (data) {
+                        callback(data)
+                    }
+                });
+
+                $("#send-message-form").fadeOut(function () {
+            
+                            $("#rubbe").text("Meddelandet har skickats!")
+                                .append(' <br /> Du kan gå tillbaka till föregående sida nu.');
+
+                });
+                
+              });
+
+           
+
+        </script>
+
+}

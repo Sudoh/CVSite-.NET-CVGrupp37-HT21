@@ -1,0 +1,39 @@
+﻿@model Shared.CurrentUserViewModellen
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>CV-management</h2>
+
+
+<div class="form-group">
+    <dl class="">
+
+        @if (Model.CvId == null)
+        {
+            <li>@Html.ActionLink("Create New CV", "Index", "CV/Create")</li>
+        }
+        <br />
+        <br />
+        @if (Model.CvId != null)
+        {
+            using (Html.BeginForm("Edit", "CV", new { Id = Model.CvId }, FormMethod.Get))
+            {
+                <button>Edit your own CV</button>
+            }
+        }
+
+        <br />
+        <br />
+        @if (Model.CvId != null)
+        {
+            using (Html.BeginForm("Details", "CV", new { Id = Model.CvId }, FormMethod.Get))
+            {
+                <button>Visit your own CV</button>
+            }
+        }
+
+
+    </dl>
+    </div>
+
